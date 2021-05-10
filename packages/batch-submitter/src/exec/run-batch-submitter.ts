@@ -6,7 +6,6 @@ import { Signer, Wallet } from 'ethers'
 import { JsonRpcProvider, TransactionReceipt } from '@ethersproject/providers'
 import { config } from 'dotenv'
 import http from 'http'
-import url from 'url'
 config()
 
 /* Internal Imports */
@@ -221,10 +220,7 @@ export const run = async () => {
     GAS_RETRY_INCREMENT,
     GAS_THRESHOLD_IN_GWEI,
     logger.child({ name: TX_BATCH_SUBMITTER_LOG_TAG }),
-    new Metrics({
-      prefix: TX_BATCH_SUBMITTER_LOG_TAG,
-      labels: { environment, release, network },
-    }),
+    metrics,
     DISABLE_QUEUE_BATCH_APPEND,
     autoFixBatchOptions
   )
@@ -246,10 +242,7 @@ export const run = async () => {
     GAS_RETRY_INCREMENT,
     GAS_THRESHOLD_IN_GWEI,
     logger.child({ name: STATE_BATCH_SUBMITTER_LOG_TAG }),
-    new Metrics({
-      prefix: STATE_BATCH_SUBMITTER_LOG_TAG,
-      labels: { environment, release, network },
-    }),
+    metrics,
     FRAUD_SUBMISSION_ADDRESS
   )
 
