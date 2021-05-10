@@ -1,11 +1,10 @@
 /* External Imports */
 import { injectL2Context } from '@eth-optimism/core-utils'
-import { Logger, Metrics } from '@eth-optimism/common-ts'
+import { Logger, Metrics, createMetricsServer } from '@eth-optimism/common-ts'
 import { exit } from 'process'
 import { Signer, Wallet } from 'ethers'
 import { JsonRpcProvider, TransactionReceipt } from '@ethersproject/providers'
 import { config } from 'dotenv'
-import http from 'http'
 config()
 
 /* Internal Imports */
@@ -309,34 +308,8 @@ export const run = async () => {
   }
 
   // Initialize metrics server
-  const server = http.createServer(async (req, res) => {
-    req.on('error', (err) => {
-      logger.warn('Server encountered request error', {
-        err,
-      })
-      res.statusCode = 400
-      res.end('400: Bad Request')
-      return
-    })
-
-    res.on('error', (err) => {
-      logger.warn('Server encountered response error', {
-        err,
-      })
-    })
-
-    if (req.url === '/metrics') {
-      res.setHeader(
-        'Content-Type',
-        txBatchSubmitter.defaultMetrics.registry.contentType
-      )
-      res.end(await txBatchSubmitter.defaultMetrics.registry.metrics())
-    } else {
-      res.statusCode = 404
-      res.end('404: Not found')
-    }
+  const metricsServer = createMetricsServer({
+    logger,
+    registry: metrics.registry
   })
-
-  server.listen(8080)
-  logger.info('Listening on port 8080')
 }
